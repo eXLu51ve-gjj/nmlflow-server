@@ -356,9 +356,9 @@ MIT License - свободно используйте в коммерчески�
 
 ### 🤝 Поддержка
 
-- 📧 Email: support@nmlflow.com
-- 💬 Telegram: @nmlflow
-- 🐛 Issues: [GitHub Issues](https://github.com/yourusername/nmlflow-server/issues)
+- 📧 Email: nml5222600@mail.ru
+- 💬 Telegram: https://t.me/eXLu51ve
+- 🐛 Issues: [GitHub Issues](https://github.com/eXLu51ve-gjj/nmlflow-server/issues)
 
 ### 🌟 Вклад в проект
 
@@ -714,9 +714,9 @@ MIT License - free to use in commercial and personal projects.
 
 ### 🤝 Support
 
-- 📧 Email: support@nmlflow.com
-- 💬 Telegram: @nmlflow
-- 🐛 Issues: [GitHub Issues](https://github.com/yourusername/nmlflow-server/issues)
+- 📧 Email: nml5222600@mail.ru
+- 💬 Telegram: https://t.me/eXLu51ve
+- 🐛 Issues: [GitHub Issues](https://github.com/eXLu51ve-gjj/nmlflow-server/issues)
 
 ### 🌟 Contributing
 
@@ -734,6 +734,6 @@ We welcome contributions!
 
 Made with ❤️ by nmL Flow Team
 
-[⭐ Star this repo](https://github.com/yourusername/nmlflow-server) | [🐛 Report Bug](https://github.com/yourusername/nmlflow-server/issues) | [💡 Request Feature](https://github.com/yourusername/nmlflow-server/issues)
+[⭐ Star this repo](https://github.com/eXLu51ve-gjj/nmlflow-server) | [🐛 Report Bug](https://github.com/eXLu51ve-gjj/nmlflow-server/issues) | [💡 Request Feature](https://github.com/eXLu51ve-gjj/nmlflow-server/issues)
 
 </div>
