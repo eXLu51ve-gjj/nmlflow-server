@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src=".github/logo.png" alt="nmL Flow Logo" width="200"/>
+<img src=".github/logo.png" alt="nmL Flow Logo" width="300"/>
 
 # nmL Flow - CRM & Project Management System
 
