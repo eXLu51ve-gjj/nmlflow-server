@@ -1,6 +1,8 @@
-# nmL Flow - CRM & Project Management System
-
 <div align="center">
+
+<img src=".github/logo.png" alt="nmL Flow Logo" width="200"/>
+
+# nmL Flow - CRM & Project Management System
 
 ![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
 ![Node](https://img.shields.io/badge/node-20.x-green.svg)
