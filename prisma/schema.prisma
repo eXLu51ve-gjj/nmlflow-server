@@ -1,0 +1,301 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// Users
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  phone     String   @default("")
+  city      String?
+  citizenship String?
+  avatar    String   @default("")
+  role      String   @default("user") // admin | user
+  pushToken String?  // Expo push notification token
+  notificationsEnabled Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  teamMember   TeamMember?
+  activities   Activity[]
+  comments     Comment[]
+  leadComments LeadComment[]
+  workDays     WorkDay[]
+  chatMessages ChatMessage[]
+  chatAccess   ChatAccess?
+}
+
+// System Settings (singleton)
+model SystemSettings {
+  id                      String  @id @default("settings")
+  registrationMode        String  @default("open") // open | invite | closed
+  requireEmailVerification Boolean @default(false)
+  allowPasswordReset      Boolean @default(true)
+  sessionTimeout          Int     @default(0)
+  maxLoginAttempts        Int     @default(5)
+  maintenanceMode         Boolean @default(false)
+  salaryPayday            Int     @default(1) // Day of month for salary period start
+}
+
+// Invite Codes
+model InviteCode {
+  id        String   @id @default(cuid())
+  code      String   @unique
+  used      Boolean  @default(false)
+  usedBy    String?
+  createdAt DateTime @default(now())
+}
+
+// Projects
+model Project {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  icon        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Archive settings
+  archiveEnabled      Boolean @default(false)
+  archiveSourceColumn String?
+  archiveDay          Int     @default(1)
+
+  // Relations
+  columns        ProjectColumn[]
+  tasks          Task[]
+  archiveFolders ArchiveFolder[]
+}
+
+// Project Columns
+model ProjectColumn {
+  id              String  @id @default(cuid())
+  name            String  // JSON: { ru: "", en: "" }
+  color           String
+  order           Int
+  isArchiveColumn Boolean @default(false)
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  tasks Task[]
+}
+
+// Tasks
+model Task {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  address     String?
+  phone       String?
+  coverImage  String?
+  priority    String?  // high | medium | low
+  deadline    String?
+  tags        String   @default("[]") // JSON array
+  attachments String   @default("[]") // JSON array
+  order       Int      @default(0)
+  archivedAt  DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  columnId String
+  column   ProjectColumn @relation(fields: [columnId], references: [id])
+
+  comments  Comment[]
+  assignees TaskAssignee[]
+}
+
+// Task Assignees (many-to-many)
+model TaskAssignee {
+  id       String @id @default(cuid())
+  taskId   String
+  memberId String
+
+  task   Task       @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  member TeamMember @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([taskId, memberId])
+}
+
+// Comments
+model Comment {
+  id        String   @id @default(cuid())
+  text      String
+  createdAt DateTime @default(now())
+
+  taskId String
+  task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id])
+}
+
+// Archive Folders
+model ArchiveFolder {
+  id        String   @id @default(cuid())
+  name      String
+  startDate DateTime
+  endDate   DateTime
+  taskIds   String   @default("[]") // JSON array
+  createdAt DateTime @default(now())
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+// Leads (CRM)
+model Lead {
+  id         String   @id @default(cuid())
+  name       String
+  company    String
+  email      String
+  phone      String
+  address    String?
+  coverImage String?
+  value      Float    @default(0)
+  status     String   @default("leads") // leads | negotiation | proposal | closed
+  avatar     String?
+  history    String   @default("[]") // JSON array
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  assigneeId String?
+  assignee   TeamMember? @relation(fields: [assigneeId], references: [id])
+  
+  comments   LeadComment[]
+}
+
+// Lead Comments
+model LeadComment {
+  id        String   @id @default(cuid())
+  text      String
+  createdAt DateTime @default(now())
+
+  leadId String
+  lead   Lead   @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id])
+}
+
+// Team Members
+model TeamMember {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  phone     String?
+  role      String
+  avatar    String
+  isOnline  Boolean  @default(false)
+  isAdmin   Boolean  @default(false)
+  dailyRate Float    @default(0)
+  carBonus  Float    @default(0)
+  lastSeen  DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Link to User account (optional)
+  userId String? @unique
+  user   User?   @relation(fields: [userId], references: [id])
+
+  // Relations
+  leads        Lead[]
+  taskAssignees TaskAssignee[]
+  workDays     WorkDay[]
+}
+
+// Work Days (salary tracking)
+model WorkDay {
+  id        String   @id @default(cuid())
+  date      String   // YYYY-MM-DD
+  withCar   Boolean  @default(false)
+  isDouble  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  memberId String
+  member   TeamMember @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id])
+
+  @@unique([memberId, date])
+}
+
+// Activities (journal)
+model Activity {
+  id        String   @id @default(cuid())
+  type      String   // lead | task | team
+  action    String
+  subject   String
+  targetId  String?
+  projectId String?
+  timestamp DateTime @default(now())
+
+  userId     String
+  userName   String   @default("")
+  userAvatar String   @default("")
+  user       User     @relation(fields: [userId], references: [id])
+}
+
+// Calendar Notes
+model CalendarNote {
+  id          String   @id @default(cuid())
+  date        String   // YYYY-MM-DD
+  text        String
+  attachments String   @default("[]") // JSON array
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Chat Messages
+model ChatMessage {
+  id          String   @id @default(cuid())
+  text        String
+  attachments String   @default("[]") // JSON array of file URLs
+  createdAt   DateTime @default(now())
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id])
+}
+
+// Chat Access (which users can see the chat)
+model ChatAccess {
+  id     String @id @default(cuid())
+  
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// User Settings (per-user preferences)
+model UserSettings {
+  id       String @id @default(cuid())
+  userId   String @unique
+  navOrder String @default("[]") // JSON array of nav item ids
+  
+  // Revenue settings
+  revenueSources String @default("[]") // JSON array of RevenueSource objects
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Push Notification Tokens (FCM)
+model PushToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  platform  String   @default("android") // android | ios
+  chatNotificationsEnabled Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
